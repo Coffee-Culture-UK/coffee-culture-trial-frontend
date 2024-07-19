@@ -1,19 +1,32 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
-import { AppBar, alpha, Slide, Toolbar, useScrollTrigger } from "@mui/material";
+import {
+  AppBar,
+  Slide,
+  Box,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Drawer,
+} from "@mui/material";
 import { primary } from "@/themes/customs/palette";
 import useWindowDimensions from "@/utils/window";
 import { useRouter } from "next/navigation";
 import { LongLogo } from "./icons";
 import { useNavContext } from "@/contexts/nav";
+import IconButton from '@mui/material/IconButton';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 
 export default function NavBar() {
-  const {canSee} = useNavContext();
-    const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const { canSee } = useNavContext();
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
   const { width } = useWindowDimensions() ?? { width: 0 };
   const [visible, setVisible] = useState(false);
   const router = useRouter();
+  const [open, setOpen] = React.useState(false);
 
   const handleScroll = () => {
     if (window.scrollY > 56) {
@@ -34,17 +47,35 @@ export default function NavBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   });
 
-    return(
-        <div className={`${canSee ? 'block' : 'hidden'}`}>
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
+  };
+
+  const DrawerList = (
+    <Box sx={{ width: 250, backgroundColor: primary.background, colour: primary.main, height: "100%" }} role="presentation" onClick={toggleDrawer(false)}>
+      <List>
+        {navLinks.map((navLink) => (
+          <ListItem key={navLink.title} disablePadding>
+            <ListItemButton onClick={()=>{router.push(navLink.path)}} >
+              <ListItemText primary={navLink.title} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+
+  return (
+    <div className={`${canSee ? "block" : "hidden"}`}>
       <Slide appear={false} direction="down" in={!visible}>
         <AppBar
-        sx={{
-          display: "flex",
-          backgroundColor: primary.background,
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "16px",
-        }}
+          sx={{
+            display: "flex",
+            backgroundColor: primary.background,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "16px",
+          }}
           elevation={0}
         >
           <div className="container flex items-center justify-between relative">
@@ -89,33 +120,40 @@ export default function NavBar() {
             >
               Sign Up
             </Button> */}
+            <div className="block md:hidden">
+            <IconButton onClick={toggleDrawer(true)}><MenuRoundedIcon sx={{color: primary.main}}/></IconButton>
+            <Drawer open={open} onClose={toggleDrawer(false)} anchor="right" >
+              {DrawerList}
+            </Drawer>
+
+            </div>
+            
           </div>
         </AppBar>
-        </Slide>
+      </Slide>
     </div>
-        
-    )
+  );
 }
 
 const navLinks = [
-    {
-      title: "For Shops",
-      path: "/",
-    },
-    {
-      title: "Partner Cafés",
-      path: "/",
-    },
-    {
-      title: "Our Story",
-      path: "/",
-    },
-    {
-      title: "Guide",
-      path: "https://www.coffee-culture.uk/cafeguide",
-    },
-    {
-      title: "Contact Us",
-      path: "/",
-    },
-  ];
+  {
+    title: "For Shops",
+    path: "/",
+  },
+  {
+    title: "Partner Cafés",
+    path: "/",
+  },
+  {
+    title: "Our Story",
+    path: "/",
+  },
+  {
+    title: "Guide",
+    path: "https://www.coffee-culture.uk/cafeguide",
+  },
+  {
+    title: "Contact Us",
+    path: "/",
+  },
+];
